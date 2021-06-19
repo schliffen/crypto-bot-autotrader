@@ -8,6 +8,33 @@ from botchart import BotChart
 from botstrategy import BotStrategy
 from botcandlestick import BotCandlestick
 import ccxt
+import argparse
+argcollector = argparse.ArgumentParser()
+
+argcollector.add_argument('-tframe', '--timeframe', type=str, default='1d',
+                    help='time frame ex: 30s, 2m, 3h, 2d')
+argcollector.add_argument('-cpair', '--currency_pair', type=str, default='BTC/USDT',
+                    help='currency pair to trade')
+argcollector.add_argument('-sstamp', '--startstamp', type=str, default='1494491969',
+                    help='start time stamp ex: 1494491969')
+argcollector.add_argument('-estamp', '--endstamp', type=str, default='1504491969',
+                    help='end time stamp ex: 1494491969')
+argcollector.add_argument('-estamp', '--endstamp', type=str, default='1504491969',
+                    help='end time stamp ex: 1494491969')
+argcollector.add_argument('-exch', '--exchange', type=str, default='bitmex',
+                    help='exchange api ex: bitmex')
+
+# todo read the api key and secret from a config file
+key_id = "uqChWmjMeYoYJqWRH3tGROkf"
+key_secret = "MC4PS-0cAvhd5v3Race3jthKfsAXHgJlOtdJBVQYlIbeVQJ0"
+
+
+def read_credential(path):
+    with open(path, 'r') as f:
+        lines = f.readlines()
+    for line in lines:
+        sline = line.split(' ')
+
 
 def main(argv):
 
@@ -102,4 +129,6 @@ def main(argv):
             time.sleep(int(10))
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    # main(sys.argv[1:])
+    read_credential("credential.txt")
+
