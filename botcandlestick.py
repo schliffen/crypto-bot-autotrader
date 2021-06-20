@@ -7,7 +7,7 @@ import utils
 
 
 class BotCandlestick(object):
-    def __init__(self,date=None,open=None,high=None,low=None,close=None,volume=None):
+    def __init__(self,date=None, open=None, high=None, low=None,close=None,volume=None):
         self.close = close
         self.currentPrice = close
         self.date = date
@@ -41,7 +41,7 @@ class BotCandlestick(object):
             'volume': self.volume
         }
 
-    def tick(self, price):
+    def update(self, price):
         self.currentPrice = float(price)
 
         if self.date is None:
@@ -54,7 +54,6 @@ class BotCandlestick(object):
 
         if (self.low is None) or (self.currentPrice < self.low):
             self.low = self.currentPrice
-
 
         timedelta = utils.parseTimedelta(shared.strategy['timeframe'])
         if time.time() >= ( self.startTime + timedelta):

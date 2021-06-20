@@ -36,7 +36,7 @@ class BotTrade(object):
         if self.direction == "BUY":
             if not self.backTest and self.live:
                 try:
-                    order = self.api.createLimitBuyOrder(shared.exchange['pair'], amount, rate)
+                    order = self.api.createLimitBuyOrder(shared.exchange['pair'], amount, rate) # this can be changed
                     self.orderNumber = order['id']
                 except Exception as e:
                     self.output.fail(str(e))
@@ -93,11 +93,12 @@ class BotTrade(object):
             'orderNumber': self.orderNumber
         }
 
-    def tick(self, candlestick, date):
+    def execute(self, candlestick, date):
         if not self.backTest and self.live:
             date = float(time.time())
             # TODO: implement not backtest
             pass
+
         if not self.filledOn:
             if (self.direction == 'BUY' and candlestick.high > self.rate) or (self.direction == 'SELL' and candlestick.low < self.rate):
                 self.filledOn = date

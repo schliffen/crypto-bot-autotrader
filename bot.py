@@ -3,7 +3,7 @@ import time
 import pprint
 import copy
 import shared
-
+import datetime
 from botchart import BotChart
 from botstrategy import BotStrategy
 from botcandlestick import BotCandlestick
@@ -11,77 +11,57 @@ import ccxt
 import argparse
 argcollector = argparse.ArgumentParser()
 
-argcollector.add_argument('-tframe', '--timeframe', type=str, default='1d',
+argcollector.add_argument('-tframe', '--timeframe', type=str, default='1h',
                     help='time frame ex: 30s, 2m, 3h, 2d')
-argcollector.add_argument('-cpair', '--currency_pair', type=str, default='BTC/USDT',
+argcollector.add_argument('-cpair', '--currency_pair', type=str, default='BTC/USD',
                     help='currency pair to trade')
-argcollector.add_argument('-sstamp', '--startstamp', type=str, default='1494491969',
+argcollector.add_argument('-sstamp', '--startstamp', type=str, default='',
                     help='start time stamp ex: 1494491969')
-argcollector.add_argument('-estamp', '--endstamp', type=str, default='1504491969',
-                    help='end time stamp ex: 1494491969')
-argcollector.add_argument('-estamp', '--endstamp', type=str, default='1504491969',
+argcollector.add_argument('-estamp', '--endstamp', type=str, default='',
                     help='end time stamp ex: 1494491969')
 argcollector.add_argument('-exch', '--exchange', type=str, default='bitmex',
                     help='exchange api ex: bitmex')
+# argcollector.add_argument('-cpath', '--cpath', type=str, default='credential.txt',
+#                           help='end time stamp ex: 1494491969')
 
-# todo read the api key and secret from a config file
-key_id = "uqChWmjMeYoYJqWRH3tGROkf"
-key_secret = "MC4PS-0cAvhd5v3Race3jthKfsAXHgJlOtdJBVQYlIbeVQJ0"
+# # todo read the api key and secret from a config file
+# key_id = "tTcA6uzltuLz8PueS-3MnXSn"
+# key_secret = "qkwWc0zzdh2ztoj_ip_Qq0haZicZqgvcRnOiuLaAGmgbGsws"
 
 
-def read_credential(path):
-    with open(path, 'r') as f:
-        lines = f.readlines()
-    for line in lines:
-        sline = line.split(' ')
 
 
 def main(argv):
 
-    startTime = False
+    startTime = True
     endTime = False
     live = False
     movingAverageLength = 20
 
-    try:
-        opts, args = getopt.getopt(argv,"ht:c:n:s:e",["timeframe=","currency=","exchange=","live"])
-    except getopt.GetoptError:
-        print('trading-bot.py -t <timeframe> -c <currency pair>')
-        sys.exit(2)
 
-    for opt, arg in opts:
-        if opt == '-h':
-            print('trading-bot.py -t <timeframe> -c <currency pair>')
-            sys.exit()
-        elif opt in ("-s"):
-            startTime = str(arg)
-        elif opt in ("-e"):
-            endTime = str(arg)
-        elif opt in ("-t", "--timeframe"):
-            timeframe = str(arg)
-            shared.strategy['timeframe'] = timeframe
-        elif opt in ("-c", "--currency"):
-            pair = str(arg)
-            shared.exchange['pair'] = pair
-            shared.exchange['market'] = pair.split("/")[1]
-            shared.exchange['coin'] = pair.split("/")[0]
-        elif opt in ("--exchange"):
-            exchange = str(arg)
-            shared.exchange['name'] = exchange
-        elif opt == "--live":
-            print("You're going live... All loss are your reponsability only!")
-            live = True
+    # setting arguments
+
+    timeframe = argv.timeframe
+    # startTime = argv.startstamp
+    endTime = argv.endstamp
+    exchange = argv.exchange
+    shared.exchange['name'] = exchange
+    argv.currency_pair
+    pair = argv.currency_pair
+    shared.exchange['pair'] = pair
+    shared.exchange['market'] = pair.split("/")[1]
+    shared.exchange['coin'] = pair.split("/")[0]
+
 
     # startTime specified: we are in backtest mode
     if (startTime):
 
         chart = BotChart(timeframe, startTime, endTime)
-
-        strategy = BotStrategy()
+        strategy = BotStrategy(backtest=True, live=live)
         strategy.showPortfolio()
 
         for candlestick in chart.getPoints():
-            strategy.tick(candlestick)
+            strategy.decide(candlestick)
 
         chart.drawChart(strategy.candlesticks, strategy.trades, strategy.movingAverages)
 
@@ -100,8 +80,8 @@ def main(argv):
         while True:
             try:
                 currentPrice = chart.getCurrentPrice()
-                candlestick.tick(currentPrice)
-                strategy.tick(candlestick)
+                candlestick.update(currentPrice)
+                strategy.decide(candlestick)
                 
             except ccxt.NetworkError as e:
                 print(type(e).__name__, e.args, 'Exchange error (ignoring)')
@@ -126,9 +106,22 @@ def main(argv):
                 candlestick = BotCandlestick()
 
             x+=1
-            time.sleep(int(10))
+            time.sleep(int(1))
 
 if __name__ == "__main__":
-    # main(sys.argv[1:])
-    read_credential("credential.txt")
+
+    args = argcollector.parse_args()
+
+    # since_s= datetime.datetime(2021,4,19,0,0,0)
+    # tnow = datetime.datetime.now().replace(second=0, microsecond=0)
+    # tstop = datetime.datetime(2021,5,15,0,0,0)
+    # int(datetimee.timestamp() )*1000
+
+    args.startstamp = datetime.datetime(2019,1,1,0,0,0)
+    args.endstamp = datetime.datetime.now().replace(second=0, microsecond=0)
+    #datetime.datetime(2021,5,15,0,0,0)
+
+    main( args )
+    # read_credential("credential.txt")
+
 

@@ -8,13 +8,14 @@ import time
 import shared
 import sys
 
+import ccxt
 from botlog import BotLog
 
 
 class BotChart(object):
     'Draws a classic trading chart, humanely readable'
 
-    def __init__(self,timeframe,startTime,endTime,backTest=True):
+    def __init__(self,timeframe,startTime,endTime, backTest=True):
 
         self.pair = shared.exchange['pair']
         self.timeframe = str(timeframe)
@@ -62,25 +63,32 @@ class BotChart(object):
         # candlesticks
         candlesticks = pd.DataFrame.from_records([c.toDict() for c in candlesticks])
         ma = pd.DataFrame(movingAverages)
+
         if len(ma) > 0:
             candlesticks['ma'] = ma
         else:
             candlesticks['ma'] = 0
-        candlesticks['date'] = candlesticks['date']/1000
-        candlesticks.set_index('date', inplace=True)
+
+        # candlesticks['date'] = candlesticks['date']/1000
+        # candlesticks.set_index('date', inplace=True)
 
         # orders
         orders = pd.DataFrame.from_records([o.toDict() for o in orders])
-        orders['date'] = orders['date']/1000
+
         if len(orders)>1:
+            orders['date'] = orders['date']/1000
             orders.set_index('date', inplace=True)
+
+
         else :
+            orders['date'] = 0
             orders['orderNumber'] = 0
             orders['rate'] = 0
             orders['direction'] = 'None'
             orders['stopLoss'] = 0
             orders['takeProfit'] = 0
             orders['exitRate'] = 0
+
 
         # concat all to one dataframe
         data = pd.concat([candlesticks, orders], axis=1)

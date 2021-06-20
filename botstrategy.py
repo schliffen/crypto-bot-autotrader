@@ -6,14 +6,6 @@ from bottrade import BotTrade
 import shared
 import sys
 
-
-# THIS STRATEGY IS OBVIOUSLY NOT WORKING! DON'T GO LIVE USING IT!!!
-# THIS STRATEGY IS OBVIOUSLY NOT WORKING! DON'T GO LIVE USING IT!!!
-# THIS STRATEGY IS OBVIOUSLY NOT WORKING! DON'T GO LIVE USING IT!!!
-# THIS STRATEGY IS OBVIOUSLY NOT WORKING! DON'T GO LIVE USING IT!!!
-# THIS STRATEGY IS OBVIOUSLY NOT WORKING! DON'T GO LIVE USING IT!!!
-# THIS STRATEGY IS OBVIOUSLY NOT WORKING! DON'T GO LIVE USING IT!!!
-# THIS STRATEGY IS OBVIOUSLY NOT WORKING! DON'T GO LIVE USING IT!!!
 class BotStrategy(object):
     def __init__(self, backtest=True, live=False):
         self.output = BotLog()
@@ -31,7 +23,6 @@ class BotStrategy(object):
         self.ticker = {}
         self.backTest = backtest
         self.indicators = BotIndicators()
-
         self.candlesticks = []
         self.movingAverages = []
         self.movingAveragePeriod = shared.strategy['movingAverageLength']
@@ -42,39 +33,38 @@ class BotStrategy(object):
         # API
         self.api = BotApi()
 
-    def tick(self,candlestick):
+    def decide(self,candlestick):
 
-        #strategy works on closed candles only
+        # todo implementing our strategy
+
+        # strategy works on closed candles only
         if not candlestick.isClosed():
             return
         else:
             self.candlesticks.append(candlestick)
-
+        #
         self.currentPrice = candlestick.currentPrice
         ma = self.indicators.sma(self.candlesticks, shared.strategy['movingAverageLength'], 'close')
         self.movingAverages.append(ma)
-
         tr = self.indicators.trueRange(self.candlesticks)
         self.trueRanges.append(tr)
-
         atr = self.indicators.averageTrueRange(self.candlesticks, 5)
         self.averageTrueRanges.append(atr)
-
         self.ticker = self.getTicker()
-
         portfolioUpdated = self.updatePortfolio()
         # If live and portfolio not updated, we may run into some unpleasant issues.
         # Better stop here for now
         if not portfolioUpdated:
             return
-
         # Strategy needs at least 2 candles to work
         if len(self.candlesticks) > 1 and candlestick.isClosed():
             self.updateOpenTrades(self.pair)
             self.evaluatePositions()
 
+
     def evaluatePositions(self):
 
+        # todo dummy strategy
         openOrders = self.getOpenOrders(self.pair)
 
         '''
@@ -105,11 +95,12 @@ class BotStrategy(object):
             takeprofit = self.currentPrice-(2*self.averageTrueRanges[-1])
             self.sell(rate, amount, self.candlesticks[-1].date, stoploss, takeprofit)
 
+
     def updateOpenTrades(self, pair):
         openOrders = self.getOpenOrders(pair)
         # TODO: implement not backtest
         for trade in openOrders:
-            trade.tick(self.candlesticks[-1], self.candlesticks[-1].date)
+            trade.execute(self.candlesticks[-1], self.candlesticks[-1].date)
 
     def getOpenOrders(self, pair):
         openOrders = []
@@ -136,6 +127,7 @@ class BotStrategy(object):
 
     def updatePortfolio(self):
         if not self.backTest and self.live:
+
             try:
                 portfolio = self.api.fetchBalance()
                 if shared.exchange['market'] in portfolio:

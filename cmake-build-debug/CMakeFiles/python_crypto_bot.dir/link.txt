@@ -1,0 +1,1 @@
+/usr/bin/c++  -g   CMakeFiles/python_crypto_bot.dir/main.cpp.o  -o python_crypto_bot 

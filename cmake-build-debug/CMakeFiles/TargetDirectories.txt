@@ -1,0 +1,3 @@
+/home/ai/Projects/python-crypto-bot/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/ai/Projects/python-crypto-bot/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/ai/Projects/python-crypto-bot/cmake-build-debug/CMakeFiles/python_crypto_bot.dir

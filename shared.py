@@ -1,15 +1,15 @@
 api = {
-    'key': '',
-    'secret': ''
+    'key': 'eBvXI0zzO7pgq6g1-le66L0r',
+    'secret': 'tFyj6ckkf_zbkdjArg7s3rt3hnd_lBuYJqb7ArA1eH2DeiRi'
 }
 
 strategy = {
     'movingAverageLength': 14,
-    'timeframe': None
+    'timeframe': '5m'
 }
 
 exchange = {
-    'name': 'poloniex',
+    'name': 'bitmex',
     'spreadPercentage': 0.002,
     'fee': 0.008,
     'pair': None,
